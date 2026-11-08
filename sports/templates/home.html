@@ -1,0 +1,592 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block link %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   home.css  -  styles for home.html (extends layout.html)
+   Variables use the --h- prefix so they never clash with layout.html
+   ========================================================= */
+:root {
+    --h-maroon: #800000;
+    --h-maroon-dark: #5c0000;
+    --h-teal: #007a7a;
+    --h-teal-light: #4fd1c5;
+    --h-ink: #17181c;
+    --h-muted: #5d636b;
+    --h-bg: #f2f3f5;
+    --h-line: #e2e4e8;
+    --h-night: #14161a;
+    --h-radius: 14px;
+    --h-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    --h-text: 'Barlow', Arial, sans-serif;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--h-bg); color: var(--h-ink); }
+
+.body, .academy-section, .invisi, .slider, .abt {
+    font-family: var(--h-text);
+    line-height: 1.5;
+}
+
+/* ---------- Buttons ---------- */
+.btn01 {
+    display: inline-block;
+    padding: 11px 24px;
+    border: 2px solid var(--h-maroon);
+    border-radius: 999px;
+    background: var(--h-maroon);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.btn01:hover { background: var(--h-maroon-dark); border-color: var(--h-maroon-dark); }
+.btn01:focus-visible { outline: 3px solid var(--h-teal); outline-offset: 3px; }
+
+/* ---------- Hero ---------- */
+.body {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: max(600px, min(92vh, 780px));
+    padding-top: 100px;                 /* keeps the headline clear of the fixed navbar */
+    background: #0f1a14;
+    overflow: hidden;
+}
+.body > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.body::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(10, 10, 14, 0.82) 0%, rgba(10, 10, 14, 0.35) 60%, rgba(10, 10, 14, 0.1) 100%),
+        linear-gradient(0deg, rgba(10, 10, 14, 0.55) 0%, transparent 45%);
+}
+.body > div {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    padding: 0 6vw 12vh;
+    color: #fff;
+}
+.body h1 {
+    margin-bottom: 16px;
+    font-family: var(--h-display);
+    font-size: clamp(2.6rem, 6.5vw, 5.2rem);
+    font-weight: 700;
+    line-height: 0.95;
+}
+.body p {
+    max-width: 520px;
+    margin-bottom: 28px;
+    font-size: 1.2rem;
+    opacity: 0.92;
+}
+.body br { display: none; }
+.body h1 br { display: inline; }
+.body .btn01 { padding: 14px 34px; font-size: 1.1rem; }
+.body small { display: block; margin-top: 14px; opacity: 0.75; }
+
+/* ---------- Section headings ---------- */
+.academy-section { padding: 72px 5vw 0; }
+section.academy-section { padding-bottom: 80px; }
+
+.hd {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto 36px;
+}
+.hd span {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #c4c8ce);
+}
+.hd span:last-child { background: linear-gradient(270deg, transparent, #c4c8ce); }
+.hd h1 {
+    font-family: var(--h-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: var(--h-ink);
+}
+
+/* ---------- Services ---------- */
+.academy-section > h2 {
+    margin-bottom: 14px;
+    text-align: center;
+    font-family: var(--h-display);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--h-maroon);
+}
+.academy-section > p {
+    max-width: 760px;
+    margin: 0 auto 48px;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--h-muted);
+}
+.academy-content {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    align-items: center;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.academy-image img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--h-radius);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+}
+.academy-features {
+    padding: 32px;
+    border: 1px solid var(--h-line);
+    border-radius: var(--h-radius);
+    background: #fff;
+}
+.academy-features h4 {
+    margin-bottom: 18px;
+    font-family: var(--h-display);
+    font-size: 1.8rem;
+    line-height: 1.1;
+}
+.academy-features ul { display: grid; gap: 12px; list-style: none; }
+.academy-features li { position: relative; padding-left: 30px; }
+.academy-features li::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 0.25em;
+    width: 6px;
+    height: 12px;
+    border: solid var(--h-teal);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* ---------- Timings / reviews / locations (night band) ---------- */
+.invisi {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    padding: 72px max(5vw, calc((100% - 1100px) / 2));
+    background: var(--h-night);
+    color: #fff;
+}
+.invisi h1 {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 1.4rem;
+    color: var(--h-teal-light);
+}
+.invisi h3 {
+    margin-bottom: 14px;
+    font-family: var(--h-display);
+    font-size: 1.9rem;
+}
+.invisi p { margin-bottom: 8px; color: #c5c9d0; }
+.invisi p span { color: #fff; font-weight: 600; }
+.invisi > div:first-child p span { display: inline-block; min-width: 110px; }
+.invisi > div:last-child p { margin-bottom: 14px; }
+.invisi a { color: var(--h-teal-light); text-decoration: underline; text-underline-offset: 3px; }
+.invisi a span { color: inherit; }
+.invisi + br { display: none; }
+.invisi br { display: none; }
+.invisi > div:first-child p:last-of-type { margin-top: 16px; }
+.invisi > div:nth-child(2) p { margin-bottom: 16px; }
+
+/* ---------- Deals ---------- */
+.slider { padding: 8px 5vw 80px; }
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 20px;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 18px;
+    overflow: hidden;
+    border: 1px solid var(--h-line);
+    border-radius: var(--h-radius);
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12); }
+.card img {
+    width: 100%;
+    height: 170px;
+    margin-bottom: 16px;
+    object-fit: cover;
+}
+.card > *:not(img) { margin-left: 18px; margin-right: 18px; }
+.card > span {
+    margin-bottom: 6px;
+    font-family: var(--h-display);
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.card > p { color: var(--h-muted); }
+.card .btn02 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 18px;
+}
+.card .btn01 { padding: 8px 16px; font-size: 0.92rem; }
+.btn02 .btn01:last-child { background: transparent; color: var(--h-maroon); }
+.btn02 .btn01:last-child:hover { background: var(--h-maroon); color: #fff; }
+
+.card.discount { border-color: var(--h-maroon); }
+.card.discount > p:first-of-type {
+    align-self: flex-start;
+    margin-bottom: 8px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--h-maroon);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+.card.discount > p:last-of-type { color: var(--h-ink); font-size: 1.1rem; font-weight: 700; }
+
+/* ---------- About ---------- */
+.abt {
+    padding-bottom: 88px;
+    border-top: 1px solid var(--h-line);
+    background: #fff;
+}
+.abt_details {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.5fr;
+    gap: 48px;
+    width: min(1100px, 90vw);
+    margin: 0 auto;
+}
+.abt_details h1 {
+    margin-bottom: 18px;
+    font-family: var(--h-display);
+    font-size: 2rem;
+}
+
+.icons { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.icon { color: var(--h-ink); }
+.icon p span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border: 1px solid #c9ccd2;
+    border-radius: 999px;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.icon:hover p span { border-color: var(--h-maroon); background: #fff5f5; color: var(--h-maroon); }
+
+.details { display: block; }
+.details ul {
+    display: grid;
+    gap: 12px;
+    padding-left: 18px;
+    border-left: 3px solid var(--h-maroon);
+    list-style: none;
+    color: var(--h-muted);
+}
+
+.abt form { display: grid; gap: 16px; }
+.abt form span { display: block; }
+.abt .portion { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.abt label { display: inline-block; margin-bottom: 6px; font-size: 0.95rem; font-weight: 600; }
+.abt input,
+.abt textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #c9ccd2;
+    border-radius: 10px;
+    background: #fafafa;
+    font: inherit;
+}
+.abt textarea { min-height: 100px; resize: vertical; }
+.abt input:focus,
+.abt textarea:focus {
+    border-color: var(--h-teal);
+    background: #fff;
+    outline: 2px solid rgba(0, 122, 122, 0.25);
+}
+.abt .send {
+    justify-self: start;
+    padding: 11px 28px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--h-maroon);
+    color: #fff;
+    font: 600 1rem var(--h-text);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.abt .send:hover { background: var(--h-maroon-dark); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    .academy-content { grid-template-columns: 1fr; }
+    .invisi { grid-template-columns: 1fr; gap: 36px; }
+    .abt_details { grid-template-columns: 1fr; gap: 40px; }
+}
+@media (max-width: 700px) {
+    .body { min-height: 82vh; }
+    .body > div { padding-bottom: 9vh; }
+    .academy-features { padding: 24px; }
+    .abt .portion { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .card, .btn01, .icon p span { transition: none; }
+    .card:hover { transform: none; }
+}
+</style>
+{% endblock link %}
+
+{% block title %}Home{% endblock title %}
+
+{% block body %}
+{% get_media_prefix as media_url %}
+
+<!-- Hero -->
+<div class="body">
+    <img src="{{ media_url }}alexanrda-court.jpg" alt="Sports court at BOOKING|Courts">
+    <div>
+        <h1>Book your court.<br>Play tonight.</h1>
+        <p>Cricket, football, tennis, table tennis and basketball across Malir, Defence and Jauhar.</p>
+        <a class="btn01" href="#deals">Let's get started</a>
+    </div>
+</div>
+
+<!-- Services -->
+<section class="academy-section">
+    <div class="hd"><span></span><h1>Services</h1><span></span></div>
+    <h2>SPORTS COURTS</h2>
+    <p>
+        Experience premier sports services with top-tier courts for cricket, football, tennis, and table tennis.
+        Enjoy expert coaching, quality turf, tournament facilities,
+        and flexible bookings designed to elevate your game, whether you're training, competing, or playing for fun.
+    </p>
+    <div class="academy-content">
+        <div class="academy-image">
+            <img src="{{ media_url }}back.jpg" alt="Padel court" loading="lazy">
+        </div>
+        <div class="academy-features">
+            <h4>What makes us different from other sports clubs</h4>
+            <ul>
+                <li>Well maintained</li>
+                <li>Double football court</li>
+                <li>Filled with greenery</li>
+                <li>24/7 available</li>
+                <li>Fibrillated grass turf</li>
+                <li>Training grounds</li>
+                <li>Membership plan</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Timings / reviews / locations -->
+<div class="invisi">
+    <div>
+        <h1><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></h1>
+        <h3>Timings:</h3>
+        <p><span>Monday:</span> 7:30am to 2:00am</p>
+        <p><span>Tuesday:</span> 7:30am to 2:00am</p>
+        <p><span>Wednesday:</span> 7:30am to 2:00am</p>
+        <p><span>Thursday:</span> 7:30am to 2:00am</p>
+        <p><span>Saturday:</span> 8:30am to 2:00am</p>
+        <br>
+        <p><span>Open for almost 20 hrs</span></p>
+    </div>
+    <div>
+        <h1><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.5 2.3 2 4 2s3-.5 4-2M9 9.5h.01M15 9.5h.01"/></svg></h1>
+        <h3>Wonderful reviews</h3>
+        <br>
+        <p>See them on <a href="#"><span>Google Maps</span></a></p>
+        <br>
+        <p><span>Multiple courts</span> for the same game</p>
+        <br>
+        <p>Used for different <span>big events</span></p>
+    </div>
+    <div>
+        <h1><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></h1>
+        <h3>Our locations:</h3>
+        <p><span>MALIR</span><br>Near something....</p>
+        <p><span>DEFENCE</span><br>In Badr, aka Phase 6, <a href="#">near Do Talwar</a></p>
+        <p><span>JAUHAR</span><br>In Block 14, <a href="#">near Beacon House School Jauhar</a></p>
+    </div>
+</div>
+
+<br>
+
+<!-- Deals -->
+<div class="academy-section"><div class="hd" id="deals"><span></span><h1>Deals</h1><span></span></div></div>
+<div class="slider">
+    <div class="cards">
+        <div class="card discount">
+            <img src="{{ media_url }}ft.jpeg" alt="Football court" loading="lazy">
+            <span>Football</span>
+            <p>25% OFF</p>
+            <p>For 3 hrs</p>
+            <p>For only Rs 6,000</p>
+            <div class="btn02">
+                <a href="{% url 'booking' %}" class="btn01">Book</a>
+                <a href="#about" class="btn01">Details...</a>
+            </div>
+        </div>
+        <div class="card discount">
+            <img src="{{ media_url }}ttt.jpeg" alt="Table tennis court" loading="lazy">
+            <span>Table tennis</span>
+            <p>20% OFF</p>
+            <p>For 1 hr</p>
+            <p>For only Rs 2,800</p>
+            <div class="btn02">
+                <a href="{% url 'booking' %}" class="btn01">Book</a>
+                <a href="#about" class="btn01">Details...</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ media_url }}th.jpeg" alt="Cricket pitch" loading="lazy">
+            <span>Cricket</span>
+            <p>Price per hr: Rs 2,500</p>
+            <p>Number of courts: 2</p>
+            <div class="btn02">
+                <a href="{% url 'booking' %}" class="btn01">Book</a>
+                <a href="#about" class="btn01">Details...</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ media_url }}basketball.jpg" alt="Basketball court" loading="lazy">
+            <span>Basketball</span>
+            <p>Price per hr: Rs 3,000</p>
+            <p>Number of courts: 2</p>
+            <div class="btn02">
+                <a href="{% url 'booking' %}" class="btn01">Book</a>
+                <a href="#about" class="btn01">Details...</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ media_url }}fs1.webp" alt="Tennis court" loading="lazy">
+            <span>Tennis</span>
+            <p>Price per hr: Rs 3,000</p>
+            <p>Number of courts: 3</p>
+            <div class="btn02">
+                <a href="{% url 'booking' %}" class="btn01">Book</a>
+                <a href="#about" class="btn01">Details...</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- About -->
+<div class="abt" id="about">
+    <div class="academy-section"><div class="hd"><span></span><h1>About</h1><span></span></div></div>
+    <div class="abt_details">
+        <div class="follow">
+            <h1>Follow us:</h1>
+            <span class="icons">
+                <a class="icon" href="#"><p><span><i class="fa-brands fa-instagram"></i> | <small>Instagram</small></span></p></a>
+                <a class="icon" href="#"><p><span><i class="fa-brands fa-facebook"></i> | <small>Facebook</small></span></p></a>
+                <a class="icon" href="#"><p><span><i class="fa-brands fa-linkedin"></i> | <small>LinkedIn</small></span></p></a>
+            </span>
+        </div>
+        <div>
+            <h1>History</h1>
+            <span class="details">
+                <ul>
+                    <li>Started in 2020</li>
+                    <li>Started by</li>
+                    <li>Host of many regional games</li>
+                </ul>
+            </span>
+        </div>
+        <div>
+            <h1>Contact</h1>
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="portion">
+                    <span><label for="email">Email: </label><br><input type="email" name="email" id="email" required></span>
+                    <span><label for="name">Name: </label><br><input type="text" name="name" id="name" required></span>
+                </div>
+                <span class="txt"><label for="txt">Comment: </label><br><textarea name="comment" id="txt" required></textarea></span>
+                <button type="submit" class="send">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    // 1. Highlight the Deals / About link in the navbar and sidebar while scrolling
+    var map = { deals: 'deals', about: 'about' };
+    var links = document.querySelectorAll('.nav-links a[href^="#"], .sidebar a[href^="#"]');
+
+    function setActive(id) {
+        links.forEach(function (a) {
+            var on = a.getAttribute('href') === '#' + id;
+            a.classList.toggle('active', on);
+            if (on) { a.setAttribute('aria-current', 'true'); } else { a.removeAttribute('aria-current'); }
+        });
+    }
+
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) setActive(entry.target.id);
+            });
+        }, { rootMargin: '-40% 0px -50% 0px' });
+
+        Object.keys(map).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) observer.observe(el);
+        });
+
+        // Clear the highlight when back at the top of the page
+        window.addEventListener('scroll', function () {
+            if (window.scrollY < 200) setActive('');
+        }, { passive: true });
+    }
+
+    // 2. Contact form: show "Sending..." and stop double submits
+    var form = document.querySelector('.abt form');
+    if (form) {
+        form.addEventListener('submit', function () {
+            var btn = form.querySelector('.send');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+            }
+        });
+    }
+})();
+</script>
+{% endblock body %}

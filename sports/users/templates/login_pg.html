@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+{% load static %}
+{% get_media_prefix as media_url %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --maroon: #800000;
+            --maroon-dark: #5c0000;
+            --teal: #007a7a;
+            --ink: #17181c;
+            --muted: #5d636b;
+            --line: #c9ccd2;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: 'Barlow', Arial, sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(135deg, rgba(10, 10, 14, 0.85), rgba(10, 10, 14, 0.5)),
+                url("{{ media_url }}alexanrda-court.jpg") center / cover no-repeat,
+                #14161a;
+        }
+        a { color: var(--maroon); font-weight: 600; text-decoration: none; }
+        a:hover { text-decoration: underline; text-underline-offset: 3px; }
+        :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+
+        .main {
+            width: min(420px, 100%);
+            padding: 36px 32px 30px;
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        }
+        .brand {
+            display: inline-block;
+            margin-bottom: 18px;
+            font-family: 'Barlow Condensed', Arial, sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .brand span { color: var(--maroon); }
+        .head {
+            margin-bottom: 6px;
+            font-family: 'Barlow Condensed', Arial, sans-serif;
+            font-size: 2.6rem;
+            line-height: 1;
+        }
+        .sub { margin-bottom: 24px; color: var(--muted); }
+
+        form { display: grid; gap: 18px; }
+        form span { display: block; }
+        label { display: block; margin-bottom: 6px; font-size: 0.95rem; font-weight: 600; }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fafafa;
+            font: inherit;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        input:focus {
+            border-color: var(--teal);
+            background: #fff;
+            outline: 2px solid rgba(0, 122, 122, 0.25);
+        }
+        .pw-wrap { position: relative; }
+        .pw-wrap input { padding-right: 70px; }
+        .pw-toggle {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 6px 10px;
+            border: 0;
+            border-radius: 8px;
+            background: none;
+            color: var(--muted);
+            font: 600 0.85rem 'Barlow', Arial, sans-serif;
+            cursor: pointer;
+        }
+        .pw-toggle:hover { color: var(--maroon); }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 13px;
+            border: 0;
+            border-radius: 999px;
+            background: var(--maroon);
+            color: #fff;
+            font: 600 1.05rem 'Barlow', Arial, sans-serif;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        button[type="submit"]:hover { background: var(--maroon-dark); }
+        button[type="submit"]:disabled { opacity: 0.7; cursor: wait; }
+        .links { margin-top: 16px; display: grid; gap: 6px; text-align: center; color: var(--muted); font-size: 0.95rem; }
+
+        .errorlist { list-style: none; margin-top: 6px; color: #b00020; font-size: 0.9rem; }
+        .errors { margin-bottom: 18px; display: grid; gap: 10px; }
+        .errors:empty { display: none; }
+        .errors .msg {
+            padding: 12px 14px;
+            border-left: 4px solid #b00020;
+            border-radius: 8px;
+            background: #fdecee;
+            color: #7a0016;
+            font-size: 0.95rem;
+        }
+        .errors .msg.success { border-color: var(--teal); background: #e6f4f4; color: #035454; }
+
+        @media (max-width: 480px) { .main { padding: 28px 20px 24px; } }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <a href="{% url 'home' %}" class="brand"><span>BOOKING</span>|Courts</a>
+        <h2 class="head">Login</h2>
+        <p class="sub">Log in to book your court.</p>
+
+        <div class="errors" role="alert">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="msg {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <span>
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {{ form.email.errors }}
+            </span>
+            <span>
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </span>
+            <span>
+                <button type="submit">Log in</button>
+            </span>
+        </form>
+
+        <div class="links">
+            <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+            <p>Or return <a href="{% url 'home' %}">Home</a></p>
+        </div>
+
+    </div>
+
+    <script>
+        (function () {
+            var form = document.querySelector('form');
+            var email = form.querySelector('input[name="email"]');
+            var password = form.querySelector('input[name="password"]');
+
+            // Browser helpers
+            if (email) {
+                email.setAttribute('autocomplete', 'email');
+                if (!email.value) email.focus();
+            }
+
+            if (password) {
+                password.setAttribute('autocomplete', 'current-password');
+
+                // Show / hide password
+                var wrap = document.createElement('div');
+                wrap.className = 'pw-wrap';
+                password.parentNode.insertBefore(wrap, password);
+                wrap.appendChild(password);
+
+                var toggle = document.createElement('button');
+                toggle.type = 'button';
+                toggle.className = 'pw-toggle';
+                toggle.textContent = 'Show';
+                toggle.setAttribute('aria-label', 'Show password');
+                toggle.addEventListener('click', function () {
+                    var hidden = password.type === 'password';
+                    password.type = hidden ? 'text' : 'password';
+                    toggle.textContent = hidden ? 'Hide' : 'Show';
+                    toggle.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+                });
+                wrap.appendChild(toggle);
+            }
+
+            // Stop double submits
+            form.addEventListener('submit', function () {
+                var btn = form.querySelector('button[type="submit"]');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = 'Logging in...';
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

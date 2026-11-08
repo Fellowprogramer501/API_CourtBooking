@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <body style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Hello {{ user.first_name }},</h2>
+        <p>Your booking has been confirmed 🎉</p>
+
+        <h3>Booking Details:</h3>
+        <ul>
+        <li><b>Sport:</b> {{ booking.court.sport }}</li>
+        <li><b>Branch:</b> {{ booking.court.branch.Location }}</li>
+        <li><b>Court Number:</b> {{ booking.court_no }}</li>
+        <li><b>Date:</b> {{ booking.start|date:"D, d M Y" }}</li>
+        <li><b>Time:</b> {{ booking.start|time:"H:i" }} – {{ booking.end|time:"H:i" }}</li>
+        </ul>
+
+        <p>We look forward to seeing you on the court! 🏆</p>
+
+        <p style="font-size:12px;color:#777;">
+        This is an automated message from BOOKTeq.
+        <br> pls Dont reply to this
+        </p>
+    </body>
+</html>

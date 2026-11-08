@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+{% comment %}
+  main_page.html  (the dashboard layout that dashboard.html extends)
+  TAGS used in this file:  [CHANGED] = existed before, changed   [ADDED] = new
+  Blocks kept exactly: link, respon_head, respon_main, MAIN
+{% endcomment %}
+{% load static %}
+{% url 'home' as home_url %}
+{% url 'booking' as booking_url %}
+{% url 'userpage' as dash_url %}           {# [CHANGED] replaces the guessed 'user_bookings' URL: "My bookings" now links to the dashboard #}
+{% url 'logout' as logout_url %}
+{% url 'delete_account' as delete_url %}
+{% firstof user.first_name user.username as who %}   {# [ADDED] name used for the initial-letter avatar #}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --maroon: #800000;
+            --maroon-dark: #5c0000;
+            --teal: #007a7a;
+            --ink: #17181c;
+            --muted: #5d636b;
+            --bg: #f2f3f5;
+            --line: #e2e4e8;
+            --night: #14161a;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: 'Barlow', Arial, sans-serif;
+            line-height: 1.5;
+        }
+        a { color: var(--maroon); text-decoration: none; }
+        :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+        svg { flex-shrink: 0; }
+
+        /* [CHANGED] avatar is now an initial letter, so it never depends on an image file */
+        .avatar {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--maroon);
+            color: #fff;
+            font: 700 1.05rem 'Barlow', Arial, sans-serif;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--maroon);
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        /* ---------- Sidebar (desktop) ---------- */
+        .side {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 24px 16px 16px;
+            background: var(--night);
+        }
+        .side .head { display: block; margin-bottom: 26px; padding: 0 10px; }
+        .side .head b {
+            font-family: 'Barlow Condensed', Arial, sans-serif;
+            font-size: 1.45rem;
+            line-height: 1;
+            color: #fff;
+        }
+        .side .head b span { color: #ff8a8a; }
+        .side .nav-label {
+            margin: 6px 12px 6px;
+            color: #7d838c;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .side .link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            color: #c5c9d0;
+            font-weight: 500;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .side .link:hover { background: #22252b; color: #fff; }
+        .side .link.active { background: var(--maroon); color: #fff; }
+
+        /* [ADDED] user card at the bottom of the sidebar */
+        .side-user {
+            margin-top: auto;
+            display: grid;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #1c1f25;
+        }
+        .side-user .who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .side-user .who div { min-width: 0; }
+        .side-user strong { display: block; color: #fff; font-size: 0.98rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .side-user small { display: block; color: #9aa0a9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .side-user button {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #343840;
+            border-radius: 999px;
+            background: none;
+            color: #e6e8ec;
+            font: 600 0.92rem 'Barlow', Arial, sans-serif;
+            cursor: pointer;
+        }
+        .side-user button:hover { background: #2a2d34; }
+
+        /* ---------- Main area (desktop) ---------- */
+        .body { min-width: 0; display: flex; flex-direction: column; }
+        .body > header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 32px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--line);
+        }
+        .body > header h1 {
+            font-family: 'Barlow Condensed', Arial, sans-serif;
+            font-size: 1.9rem;
+            line-height: 1;
+        }
+        .body > header small { color: var(--muted); }
+        .header-actions { display: flex; align-items: center; gap: 14px; }
+        .cta-btn {                                   /* [ADDED] "Book a court" button in the header */
+            padding: 9px 20px;
+            border-radius: 999px;
+            background: var(--maroon);
+            color: #fff;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+        .cta-btn:hover { background: var(--maroon-dark); }
+        .main { padding: 28px 32px 56px; max-width: 1200px; width: 100%; }
+
+        /* ---------- Account dropdown ---------- */
+        .account { position: relative; }
+        .account-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 14px 4px 4px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--ink);
+            font: 600 0.95rem 'Barlow', Arial, sans-serif;
+            cursor: pointer;
+        }
+        .account-btn:hover { border-color: #c4c8ce; }
+        .account-btn::after {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border: solid var(--muted);
+            border-width: 0 2px 2px 0;
+            transform: translateY(-2px) rotate(45deg);
+        }
+        .menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 210px;
+            padding: 6px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+        }
+        .menu[hidden] { display: none; }
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 8px;
+            background: none;
+            color: var(--ink);
+            font: 500 0.95rem 'Barlow', Arial, sans-serif;
+            text-align: left;
+            cursor: pointer;
+        }
+        .menu-item:hover { background: var(--bg); }
+        .menu-item.danger { color: #b00020; }
+        .menu-item.danger:hover { background: #fdecee; }
+        .menu hr { margin: 6px 0; border: 0; border-top: 1px solid var(--line); }
+
+        /* ---------- Mobile ---------- */
+        .responsive { display: none; }
+        .tabbar { display: none; }
+
+        @media (max-width: 800px) {
+            body { display: block; }
+            .side, .body { display: none; }
+            .responsive { display: block; }
+
+            .respon_body { min-height: 100vh; padding-bottom: 76px; }
+            .respon_body .hd {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 10px 16px;
+                background: rgba(255, 255, 255, 0.94);
+                backdrop-filter: blur(8px);
+                border-bottom: 1px solid var(--line);
+            }
+            .respon_body .account-btn { padding: 3px; }
+            .respon_body .account-btn::after { display: none; }
+            .main_respon { padding: 18px 16px 24px; }
+
+            /* [ADDED] bottom tab bar for phones */
+            .tabbar {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 30;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+                background: #fff;
+                border-top: 1px solid var(--line);
+            }
+            .tabbar a {
+                display: grid;
+                justify-items: center;
+                gap: 2px;
+                padding: 6px;
+                border-radius: 10px;
+                color: var(--muted);
+                font-size: 0.78rem;
+                font-weight: 600;
+            }
+            .tabbar a.active { color: var(--maroon); }
+        }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+    {% block link %}{% endblock link %}
+</head>
+<body>
+    <!-- ================= Mobile layout ================= -->
+    <div class="responsive">
+        <div class="respon_body">
+            <div class="hd">
+                <span class="hash">
+                    {% block respon_head %}{% endblock respon_head %}
+                </span>
+                <div class="right account">
+                    <button type="button" class="account-btn" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+                        <span class="avatar">{{ who|first }}</span>   {# [CHANGED] was an <img>, now an initial #}
+                    </button>
+                    <div class="menu q" hidden>
+                        <a class="menu-item" href="{{ home_url|default:'#' }}">Home</a>
+                        <a class="menu-item" href="{{ booking_url|default:'#' }}">Book a court</a>
+                        <hr>
+                        <form method="post" action="{{ logout_url|default:'#' }}">
+                            {% csrf_token %}
+                            <button type="submit" class="menu-item">Logout</button>
+                        </form>
+                        <a class="menu-item danger" href="{{ delete_url|default:'#' }}" data-confirm="Delete your account? This cannot be undone.">Delete account</a>
+                    </div>
+                </div>
+            </div>
+            <div class="main_respon">
+                {% block respon_main %}{% endblock respon_main %}
+            </div>
+        </div>
+        <!-- [ADDED] bottom tab bar -->
+        <nav class="tabbar" aria-label="Dashboard">
+            <a href="{{ home_url|default:'#' }}">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home
+            </a>
+            <a href="{{ booking_url|default:'#' }}">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Book
+            </a>
+            <a href="{{ dash_url|default:'#' }}" class="active">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Account
+            </a>
+        </nav>
+    </div>
+
+    <!-- ================= Desktop layout ================= -->
+    <aside class="side">
+        <span class="head"><b><span>BOOKING</span>|Courts</b></span>   {# [CHANGED] logo image replaced by the text logo #}
+        <p class="nav-label">Menu</p>                                    {# [ADDED] #}
+        <a class="link{% if request.path == home_url %} active{% endif %}" href="{{ home_url|default:'#' }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home
+        </a>
+        <a class="link{% if request.path == booking_url %} active{% endif %}" href="{{ booking_url|default:'#' }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Book a court
+        </a>
+        <a class="link{% if request.path == dash_url %} active{% endif %}" href="{{ dash_url|default:'#' }}#reservations">   {# [CHANGED] "Users Booking" now goes to the reservations section #}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>My bookings
+        </a>
+
+        <!-- [ADDED] user card with logout -->
+        <div class="side-user">
+            <div class="who">
+                <span class="avatar">{{ who|first }}</span>
+                <div>
+                    <strong>{{ user.first_name }} {{ user.last_name }}{% if not user.first_name and not user.last_name %}{{ user.username }}{% endif %}</strong>
+                    <small>{{ user.email }}</small>
+                </div>
+            </div>
+            <form method="post" action="{{ logout_url|default:'#' }}">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="body">
+        <header>
+            <span>
+                <h1>My user dashboard</h1>
+                <small>Welcome back, {{ user.first_name|default:user.username }}</small>   {# [CHANGED] wording #}
+            </span>
+            <div class="header-actions">
+                <a class="cta-btn" href="{{ booking_url|default:'#' }}">Book a court</a>   {# [ADDED] #}
+                <div class="account">
+                    <button type="button" class="account-btn" aria-haspopup="true" aria-expanded="false">
+                        <span class="avatar">{{ who|first }}</span>                         {# [CHANGED] was an <img> #}
+                        <span>{{ user.username }}</span>
+                    </button>
+                    <div class="menu" hidden>
+                        <a class="menu-item" href="{{ home_url|default:'#' }}">Home</a>
+                        <hr>
+                        <form method="post" action="{{ logout_url|default:'#' }}">
+                            {% csrf_token %}
+                            <button type="submit" class="menu-item">Logout</button>
+                        </form>
+                        <a class="menu-item danger" href="{{ delete_url|default:'#' }}" data-confirm="Delete your account? This cannot be undone.">Delete account</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="main">
+            {% block MAIN %}{% endblock MAIN %}
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var accounts = document.querySelectorAll('.account');
+
+            function closeAll(except) {
+                accounts.forEach(function (acc) {
+                    if (acc === except) return;
+                    acc.querySelector('.menu').hidden = true;
+                    acc.querySelector('.account-btn').setAttribute('aria-expanded', 'false');
+                });
+            }
+
+            accounts.forEach(function (acc) {
+                var btn = acc.querySelector('.account-btn');
+                var menu = acc.querySelector('.menu');
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    closeAll(acc);
+                    menu.hidden = !menu.hidden;
+                    btn.setAttribute('aria-expanded', String(!menu.hidden));
+                });
+            });
+
+            document.addEventListener('click', function () { closeAll(null); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(null); });
+
+            document.querySelectorAll('[data-confirm]').forEach(function (el) {
+                el.addEventListener('click', function (e) {
+                    if (!window.confirm(el.getAttribute('data-confirm'))) e.preventDefault();
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

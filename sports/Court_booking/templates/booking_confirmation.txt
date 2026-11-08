@@ -1,0 +1,14 @@
+Hello {{ user.first_name }},
+
+Your booking has been confirmed 🎉
+
+Booking Details:
+- Sport: {{ booking.court.Sports }}
+- Branch: {{ booking.court.branch.name }}
+- Court Number: {{ booking.court_no }}
+- Date: {{ booking.start|date:"D, d M Y" }}
+- Time: {{ booking.start|time:"H:i" }} – {{ booking.end|time:"H:i" }}
+
+We look forward to seeing you on the court! 🏆
+
+-- BOOKTeq Team

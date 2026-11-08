@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+{% load static %}
+{% get_media_prefix as media_url %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --maroon: #800000;
+            --maroon-dark: #5c0000;
+            --teal: #007a7a;
+            --ink: #17181c;
+            --muted: #5d636b;
+            --line: #c9ccd2;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: 'Barlow', Arial, sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(135deg, rgba(10, 10, 14, 0.85), rgba(10, 10, 14, 0.5)),
+                url("{{ media_url }}alexanrda-court.jpg") center / cover no-repeat,
+                #14161a;
+        }
+        a { color: var(--maroon); font-weight: 600; text-decoration: none; }
+        a:hover { text-decoration: underline; text-underline-offset: 3px; }
+        :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+
+        .main {
+            width: min(420px, 100%);
+            padding: 36px 32px 30px;
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        }
+        .brand {
+            display: inline-block;
+            margin-bottom: 18px;
+            font-family: 'Barlow Condensed', Arial, sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .brand span { color: var(--maroon); }
+        .head {
+            margin-bottom: 6px;
+            font-family: 'Barlow Condensed', Arial, sans-serif;
+            font-size: 2.3rem;
+            line-height: 1.05;
+        }
+        .sub { margin-bottom: 22px; color: var(--muted); }
+
+        .center { display: grid; gap: 16px; }
+        input[name="otp"] {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fafafa;
+            font: 600 1.5rem 'Barlow', Arial, sans-serif;
+            letter-spacing: 0.35em;
+            text-align: center;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        input[name="otp"]::placeholder {
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: normal;
+            color: #8a9097;
+        }
+        input[name="otp"]:focus {
+            border-color: var(--teal);
+            background: #fff;
+            outline: 2px solid rgba(0, 122, 122, 0.25);
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 13px;
+            border: 0;
+            border-radius: 999px;
+            background: var(--maroon);
+            color: #fff;
+            font: 600 1.05rem 'Barlow', Arial, sans-serif;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        button[type="submit"]:hover { background: var(--maroon-dark); }
+        button[type="submit"]:disabled { opacity: 0.7; cursor: wait; }
+
+        .timer { text-align: center; color: var(--muted); font-size: 0.95rem; }
+        .timer b { color: var(--ink); font-variant-numeric: tabular-nums; }
+        .timer.expired { color: #b00020; font-weight: 600; }
+        .resend { text-align: center; }
+        .resend a.hot {
+            display: inline-block;
+            padding: 9px 22px;
+            border-radius: 999px;
+            background: var(--maroon);
+            color: #fff;
+        }
+        .resend a.hot:hover { background: var(--maroon-dark); text-decoration: none; }
+
+        .messages { display: grid; gap: 10px; margin-bottom: 18px; }
+        .messages:empty { display: none; }
+        .messages .msg {
+            padding: 12px 14px;
+            border-left: 4px solid #b00020;
+            border-radius: 8px;
+            background: #fdecee;
+            color: #7a0016;
+            font-size: 0.95rem;
+        }
+        .messages .msg.success { border-color: var(--teal); background: #e6f4f4; color: #035454; }
+
+        @media (max-width: 480px) { .main { padding: 28px 20px 24px; } }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <a href="{% url 'home' %}" class="brand"><span>BOOKING</span>|Courts</a>
+        <h2 class="head">Enter the authentication code</h2>
+        <p class="sub">Type the code we sent you to continue.</p>
+
+        <div class="messages" role="alert">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="msg {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <form method="post">
+            <div class="center">
+                {% csrf_token %}
+                <input type="text" name="otp" placeholder="Enter OTP" required>
+                <button type="submit">Submit</button>
+                <span class="timer" id="timer">After 2 minutes the code will expire</span>
+                <span class="resend"><a href="{% url 'register' %}" id="resend">Resend the code</a></span>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            var KEY = 'otp_expires_at';
+            var DURATION = 2 * 60 * 1000;
+            var form = document.querySelector('form');
+            var input = form.querySelector('input[name="otp"]');
+            var timerBox = document.getElementById('timer');
+            var resend = document.getElementById('resend');
+
+            // Input helpers
+            input.setAttribute('autocomplete', 'one-time-code');
+            input.setAttribute('autocapitalize', 'off');
+            input.focus();
+
+            // Remember the expiry time so a page reload does not restart the countdown
+            function read() { try { return Number(sessionStorage.getItem(KEY)); } catch (e) { return 0; } }
+            function write(v) { try { sessionStorage.setItem(KEY, String(v)); } catch (e) {} }
+            function clear() { try { sessionStorage.removeItem(KEY); } catch (e) {} }
+
+            var now = Date.now();
+            var end = read();
+            // Reuse the stored time if it is still running, or expired in the last 10 minutes
+            if (!end || now - end > 10 * 60 * 1000) {
+                end = now + DURATION;
+                write(end);
+            }
+
+            function tick() {
+                var left = end - Date.now();
+                if (left <= 0) {
+                    timerBox.className = 'timer expired';
+                    timerBox.textContent = 'This code has expired. Please request a new one.';
+                    resend.className = 'hot';
+                    clearInterval(interval);
+                    return;
+                }
+                var s = Math.ceil(left / 1000);
+                var m = Math.floor(s / 60);
+                timerBox.innerHTML = 'Code expires in <b>' + m + ':' + String(s % 60).padStart(2, '0') + '</b>';
+            }
+            var interval = setInterval(tick, 1000);
+            tick();
+
+            // A new code means a new countdown
+            resend.addEventListener('click', clear);
+
+            // Stop double submits
+            form.addEventListener('submit', function () {
+                var btn = form.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.textContent = 'Checking...';
+            });
+        })();
+    </script>
+</body>
+</html>

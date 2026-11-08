@@ -1,0 +1,382 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}Booking{% endblock title %}
+
+{% block link %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --b-maroon: #800000;
+        --b-maroon-dark: #5c0000;
+        --b-teal: #007a7a;
+        --b-ink: #17181c;
+        --b-muted: #5d636b;
+        --b-bg: #f2f3f5;
+        --b-line: #e2e4e8;
+        --b-radius: 14px;
+    }
+    body { background: var(--b-bg); }
+    html { scroll-behavior: smooth; }
+
+    .body02 {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 96px 5vw 56px;
+        font-family: 'Barlow', Arial, sans-serif;
+        color: var(--b-ink);
+    }
+
+    /* ---------- Cards ---------- */
+    .form, .details {
+        background: #fff;
+        border: 1px solid var(--b-line);
+        border-radius: var(--b-radius);
+        padding: 24px;
+    }
+    .form {
+        flex: 0 0 360px;
+        position: sticky;
+        top: 88px;
+        transition: box-shadow 0.3s ease;
+    }
+    .form.flash { box-shadow: 0 0 0 3px var(--b-teal); }
+    .details { flex: 1 1 380px; min-width: 0; }
+
+    .tp h2, .top > h2 {
+        font-family: 'Barlow Condensed', Arial, sans-serif;
+        font-size: 2.2rem;
+        line-height: 1;
+    }
+    .tp h2 { margin-bottom: 20px; }
+    .top > h2 { margin-bottom: 18px; text-align: left; }
+
+    /* ---------- Booking form ---------- */
+    .form form { display: grid; gap: 16px; margin: 0; border: 0; font-size: 1rem; }
+    .input { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .input label { align-self: auto; color: var(--b-ink); font-size: 0.95rem; font-weight: 600; }
+    .double { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-control, .form select, .form input {
+        width: 100%;
+        margin: 0;
+        padding: 11px 12px;
+        border: 1px solid #c9ccd2;
+        border-radius: 10px;
+        background: #fafafa;
+        color: var(--b-ink);
+        font: inherit;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .form-control:focus, .form select:focus, .form input:focus {
+        border-color: var(--b-teal);
+        background: #fff;
+        box-shadow: none;
+        outline: 2px solid rgba(0, 122, 122, 0.25);
+    }
+    .form button[type="submit"] {
+        width: 100%;
+        margin: 4px 0 0;
+        padding: 13px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--b-maroon);
+        color: #fff;
+        font: 600 1.05rem 'Barlow', Arial, sans-serif;
+        cursor: pointer;
+        scale: 1;
+        transition: background 0.2s ease;
+    }
+    .form button[type="submit"]:hover { background: var(--b-maroon-dark); border: 0; box-shadow: none; scale: 1; }
+    .form button[type="submit"]:disabled { opacity: 0.7; cursor: wait; }
+    .errorlist { list-style: none; color: #b00020; font-size: 0.88rem; }
+
+    /* ---------- Messages ---------- */
+    .messages {
+        display: grid;
+        gap: 10px;
+        max-height: none;
+        margin-bottom: 18px;
+        overflow: visible;
+    }
+    .alert {
+        position: relative;
+        padding: 12px 40px 12px 14px;
+        border-left: 4px solid #b00020;
+        border-radius: 8px;
+        background: #fdecee;
+        color: #7a0016;
+        font-size: 0.95rem;
+    }
+    .alert-success, .alert.success { border-color: var(--b-teal); background: #e6f4f4; color: #035454; }
+    .alert-warning, .alert.warning { border-color: #b26a00; background: #fff4e0; color: #6b4000; }
+    .alert-info, .alert.info { border-color: #2a5bd7; background: #eaf0fd; color: #1b3a8a; }
+    .alert .close {
+        position: absolute;
+        top: 7px;
+        right: 8px;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        border-radius: 50%;
+        background: none;
+        color: inherit;
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+        scale: 1;
+    }
+    .alert .close:hover { background: rgba(0, 0, 0, 0.08); box-shadow: none; border: 0; scale: 1; }
+
+    /* ---------- Branches ---------- */
+    .top {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        max-height: calc(100vh - 190px);
+        margin: 0;
+        padding: 0 4px 0 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .top::-webkit-scrollbar { width: 10px; }
+    .top::-webkit-scrollbar-track { background: transparent; }
+    .top::-webkit-scrollbar-thumb { background: #c4c8ce; border-radius: 10px; border: 2px solid #fff; }
+    .top::-webkit-scrollbar-thumb:hover { background: var(--b-maroon); }
+
+    .branch {
+        display: block;
+        flex-shrink: 0;                 /* FIX: cards no longer shrink and hide their courts */
+        width: 100%;
+        min-height: 0;
+        padding: 20px;
+        border: 1px solid var(--b-line);
+        border-radius: var(--b-radius);
+        background: #fff;
+        scale: 1;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .branch:hover { border-color: #c4c8ce; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08); background: #fff; scale: 1; }
+    .branch h4 {
+        margin-bottom: 12px;
+        text-align: left;
+        font-family: 'Barlow Condensed', Arial, sans-serif;
+        font-size: 1.8rem;
+        line-height: 1.1;
+        color: var(--b-maroon);
+    }
+    .sports { display: grid; gap: 8px; overflow: visible; }
+    .branch > h2, .sports > h2 { font-size: 0.95rem; font-weight: 600; color: var(--b-muted); }
+    .court-pick {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        margin: 0;
+        padding: 10px 14px;
+        border: 1px solid var(--b-line);
+        border-radius: 10px;
+        background: #fafafa;
+        color: var(--b-ink);
+        font: 500 0.98rem 'Barlow', Arial, sans-serif;
+        text-align: left;
+        cursor: pointer;
+        scale: 1;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .court-pick:hover { border-color: var(--b-teal); background: #f0f8f8; box-shadow: none; scale: 1; }
+    .court-pick .rate { color: var(--b-muted); font-weight: 400; }
+    .court-pick .avail {
+        flex-shrink: 0;
+        padding: 2px 10px;
+        border-radius: 999px;
+        background: #e6f4f4;
+        color: #035454;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .court-pick .avail.none { background: #fdecee; color: #7a0016; }
+    .cont {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        margin-top: 14px;
+        padding: 12px 0 0;
+        border-top: 1px solid var(--b-line);
+        color: var(--b-muted);
+        font-size: 0.95rem;
+    }
+    .cont a { color: var(--b-maroon); font-weight: 600; }
+    .empty { padding: 24px; border: 1px dashed #c4c8ce; border-radius: var(--b-radius); color: var(--b-muted); }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 900px) {
+        .body02 { flex-direction: column; align-items: stretch; padding-top: 84px; }
+        .form { position: static; flex: none; width: 100%; }
+        .details { flex: none; width: 100%; }
+        .top { max-height: none; overflow: visible; }
+    }
+    @media (max-width: 420px) { .double { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
+</style>
+{% block style %}{% endblock style %}
+{% endblock link %}
+
+
+{% block body %}
+<div class="body02">
+    <div class="form">
+        <div class="tp">
+            <h2>Book a Court</h2>
+
+            {% if messages %}
+                <div class="messages" role="alert">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <span class="input">
+                    <label for="{{ form.branch.id_for_label }}">Location</label>
+                    {{ form.branch }}
+                    {{ form.branch.errors }}
+                </span>
+                <span class="input">
+                    <label for="{{ form.sport.id_for_label }}">Sport</label>
+                    {{ form.sport }}
+                    {{ form.sport.errors }}
+                </span>
+                <span class="input">
+                    <label for="{{ form.duration.id_for_label }}">Duration</label>
+                    {{ form.duration }}
+                    {{ form.duration.errors }}
+                </span>
+                <span class="double">
+                    <span class="input">
+                        <label for="{{ form.Date.id_for_label }}">Date</label>
+                        {{ form.Date }}
+                        {{ form.Date.errors }}
+                    </span>
+                    <span class="input">
+                        <label for="{{ form.time.id_for_label }}">Time</label>
+                        {{ form.time }}
+                        {{ form.time.errors }}
+                    </span>
+                </span>
+                <button type="submit" class="btn btn-primary">Book Now</button>
+            </form>
+        </div>
+    </div>
+
+    {% block middle %}{% endblock middle %}
+
+    <div class="details">
+        <div class="top">
+            <h2>Branches</h2>
+            {% for branch in branchs %}
+                <div class="branch">
+                    <h4>{{ branch.Location }}</h4>
+                    <div class="sports">
+                        <h2>Available courts</h2>
+                        {% for sport in branch.Sports.all %}
+                            <button type="button" class="court-pick" data-branch="{{ branch.Location }}" data-sport="{{ sport.name }}">
+                                <span>{{ sport.name }} <span class="rate">{{ sport.hrly_rates }}/hr</span></span>
+                                {% for court in courts %}
+                                    {% if court.sport.pk == sport.pk and court.branch.pk == branch.pk %}
+                                        <span class="avail{% if court.available_courts == 0 %} none{% endif %}">{{ court.available_courts }} available</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </button>
+                        {% endfor %}
+                    </div>
+                    <div class="cont">
+                        {% if branch.contact_email %}<span>Email: <a href="mailto:{{ branch.contact_email }}">{{ branch.contact_email }}</a></span>{% endif %}
+                        {% if branch.contact_num %}<span>Number: <a href="tel:{{ branch.contact_num }}">{{ branch.contact_num }}</a></span>{% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty">No branches available yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var card = document.querySelector('.form');
+        var form = card.querySelector('form');
+        var branchSel = form.querySelector('[name="branch"]');
+        var sportSel = form.querySelector('[name="sport"]');
+        var dateIn = form.querySelector('[name="Date"]');
+
+        // 1. Cannot pick a date in the past
+        if (dateIn && dateIn.type === 'date') {
+            var d = new Date();
+            dateIn.min = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        // 2. Click a sport in a branch card to fill the form
+        function pick(select, text) {
+            if (!select || select.tagName !== 'SELECT') return;
+            var t = text.trim().toLowerCase();
+            var found = null;
+            Array.prototype.forEach.call(select.options, function (opt) {
+                var o = opt.text.trim().toLowerCase();
+                if (!found && o === t) found = opt;
+            });
+            if (!found) {
+                Array.prototype.forEach.call(select.options, function (opt) {
+                    var o = opt.text.trim().toLowerCase();
+                    if (!found && o && o.indexOf(t) !== -1) found = opt;
+                });
+            }
+            if (found) {
+                select.value = found.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+
+        document.querySelectorAll('.court-pick').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                pick(branchSel, btn.getAttribute('data-branch'));
+                pick(sportSel, btn.getAttribute('data-sport'));
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('flash');
+                setTimeout(function () { card.classList.remove('flash'); }, 1200);
+                if (dateIn) dateIn.focus({ preventScroll: true });
+            });
+        });
+
+        // 3. Dismissible messages
+        document.querySelectorAll('.alert').forEach(function (alert) {
+            var close = document.createElement('button');
+            close.type = 'button';
+            close.className = 'close';
+            close.setAttribute('aria-label', 'Dismiss message');
+            close.innerHTML = '&times;';
+            close.addEventListener('click', function () { alert.remove(); });
+            alert.appendChild(close);
+        });
+
+        // 4. Stop double bookings from a double click
+        form.addEventListener('submit', function () {
+            var btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Booking...';
+        });
+    })();
+</script>
+{% endblock body %}

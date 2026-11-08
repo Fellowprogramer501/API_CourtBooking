@@ -1,0 +1,101 @@
+{% comment %}
+  dashboard_content.html  (included by dashboard.html in BOTH the mobile and desktop blocks)
+  TAGS:  [CHANGED] = existed before, changed   [ADDED] = new
+{% endcomment %}
+{% url 'booking' as booking_url %}
+{% url 'home' as home_url %}
+{% firstof user.first_name user.username as who %}
+
+{% if messages %}
+<div class="alerts">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- [CHANGED] profile is now a banner card with a big initial avatar (was a small image + "Profile Details") -->
+<section class="hero-card">
+    <div class="banner"></div>
+    <div class="hero-body">
+        <span class="big-avatar">{{ who|first }}</span>
+        <div class="hero-text">
+            <h2>{{ user.first_name }} {{ user.last_name }}{% if not user.first_name and not user.last_name %}{{ user.username }}{% endif %}</h2>
+            <p class="handle">@{{ user.username }}</p>
+        </div>
+        <a class="cta" href="{{ booking_url|default:'#' }}">Book a court</a>
+    </div>
+</section>
+
+<!-- [ADDED] quick numbers -->
+<section class="stats">
+    <div class="stat">
+        <span class="stat-num">{{ bookings|length }}</span>
+        <span class="stat-label">Total reservations</span>
+    </div>
+    <div class="stat">
+        <span class="stat-num small">{% if user.date_joined %}{{ user.date_joined|date:"M Y" }}{% else %}-{% endif %}</span>
+        <span class="stat-label">Member since</span>
+    </div>
+    <div class="stat">
+        <span class="stat-num small">{% if user.last_login %}{{ user.last_login|date:"d M, g:i A" }}{% else %}-{% endif %}</span>
+        <span class="stat-label">Last login</span>
+    </div>
+</section>
+
+<div class="grid-2">
+    <!-- [CHANGED] details: now a labelled list with username added (was 3 plain lines) -->
+    <section class="panel details">
+        <h3 class="panel-title">Profile details</h3>
+        <dl class="info">
+            <div class="row"><dt>Full name</dt><dd>{{ user.first_name }} {{ user.last_name }}</dd></div>
+            <div class="row"><dt>Username</dt><dd>{{ user.username }}</dd></div>   {# [ADDED] #}
+            <div class="row"><dt>Email</dt><dd>{{ user.email }}</dd></div>
+            <div class="row"><dt>Number</dt><dd>{{ user.num }}</dd></div>
+        </dl>
+    </section>
+
+    <!-- [ADDED] quick actions -->
+    <section class="panel actions">
+        <h3 class="panel-title">Quick actions</h3>
+        <a class="action primary" href="{{ booking_url|default:'#' }}">
+            <strong>Book a court</strong>
+            <span>Pick a branch, sport and time</span>
+        </a>
+        <a class="action" href="#reservations">
+            <strong>View reservations</strong>
+            <span>See everything you have booked</span>
+        </a>
+        <a class="action" href="{{ home_url|default:'#' }}">
+            <strong>Back to home</strong>
+            <span>Deals, locations and timings</span>
+        </a>
+    </section>
+</div>
+
+<!-- [CHANGED] reservations: id added for the "View reservations" link, nicer cards, date formatting -->
+<section class="reserve" id="reservations">
+    <div class="top">
+        <h3 class="panel-title">Reservations <span class="count">{{ bookings|length }}</span></h3>
+        <div class="blocks">
+            {% for booking in bookings %}
+                <div class="block">
+                    <span class="header">
+                        <span class="sport-icon">{{ booking.sport|stringformat:"s"|first }}</span>   {# [ADDED] #}
+                        <span class="sport-name"><b>{{ booking.sport }}</b><small>{{ booking.branch }}</small></span>
+                        <span class="cost">{{ booking.cost }}</span>
+                    </span>
+                    <span class="when">
+                        <span><em>From</em> {{ booking.start|date:"D d M, g:i A"|default:booking.start }}</span>   {# [CHANGED] formats dates, shows the raw value if it is not a date #}
+                        <span><em>To</em> {{ booking.end|date:"D d M, g:i A"|default:booking.end }}</span>
+                    </span>
+                </div>
+            {% empty %}
+                <div class="empty">
+                    <p>You have no reservations yet.</p>
+                    <a class="cta" href="{{ booking_url|default:'#' }}">Book a court</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
